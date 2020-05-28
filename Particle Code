@@ -1,0 +1,45 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <MQTT.h>
+
+// This #include statement was automatically added by the Particle IDE.
+#include <HC_SR04.h>
+
+MQTT client("test.mosquitto.org", 1883, callback);
+
+void callback(char* topic, byte* payload, unsigned int length)
+{
+}
+
+double cm = 0.0;
+double inches = 0.0;
+
+int trigPin = D2;
+int echoPin = D5;
+
+HC_SR04 rangefinder = HC_SR04(trigPin, echoPin);
+
+void setup() {
+    
+    client.connect("argonDev");
+    
+    Spark.variable("cm", &cm, DOUBLE);
+
+}
+
+void loop() {
+    
+    if (client.isConnected())
+    {
+        cm = rangefinder.getDistanceCM();
+        
+        if (cm < 150.0)
+        {
+            client.publish("argonData", String(cm));
+            delay(1000);
+        }
+        
+        
+        client.loop();
+    }
+
+}
