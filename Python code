@@ -1,0 +1,25 @@
+import paho.mqtt.client as mqtt
+import time
+import RPi.GPIO as GPIO
+from time import sleep
+
+GPIO.setmode(GPIO.BCM)
+buzzer = 14
+GPIO.setup(buzzer,GPIO.OUT)
+
+def messageFunction (client, userdata, message):
+        topic = str(message.topic)
+        message = str(message.payload.decode("utf-8"))
+        print(topic + message)
+        GPIO.output(buzzer, GPIO.HIGH)
+        sleep(1)
+        GPIO.output(buzzer, GPIO.LOW)
+
+ourClient = mqtt.Client("makerio_mqtt")
+ourClient.connect("test.mosquitto.org", 1883)
+ourClient.subscribe("argonData")
+ourClient.on_message = messageFunction
+ourClient.loop_start()
+
+while(1):
+        sleep(1)
